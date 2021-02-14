@@ -1,10 +1,11 @@
-package hu.dianaszanto.agileboard.model;
+package hu.dianaszanto. agileboard.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,5 +17,6 @@ public class StoryDto {
     private String description;
     private Timestamp createdAt;
     private StoryStatus status;
-    private User assignee;
+    private String assignee;
+
 }

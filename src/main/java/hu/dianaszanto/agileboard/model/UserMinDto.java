@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UserDto {
-    private String name;
-    private List<String> stories;
+public class UserMinDto {
+    private List<UserDto> users;
 }
