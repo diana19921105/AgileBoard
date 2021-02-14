@@ -12,4 +12,8 @@ import java.util.List;
 public class UserDto {
     private String name;
     private List<String> stories;
+
+    public UserDto(String name) {
+        this.name = name;
+    }
 }

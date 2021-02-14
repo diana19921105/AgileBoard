@@ -2,13 +2,8 @@ package hu.dianaszanto.agileboard.controller;
 
 import hu.dianaszanto.agileboard.model.Story;
 import hu.dianaszanto.agileboard.model.StoryDto;
-import hu.dianaszanto.agileboard.model.StoryMinDto;
 import hu.dianaszanto.agileboard.model.StoryPointRequest;
 import hu.dianaszanto.agileboard.model.StoryRequest;
-import hu.dianaszanto.agileboard.model.StoryStatus;
-import hu.dianaszanto.agileboard.model.User;
-import hu.dianaszanto.agileboard.model.UserDto;
-import hu.dianaszanto.agileboard.model.UserMinDto;
 import hu.dianaszanto.agileboard.model.UserRequest;
 import hu.dianaszanto.agileboard.service.AgileBoardService;
 import org.springframework.http.HttpStatus;
@@ -22,42 +17,24 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
-// TODO rename to StoryController
-public class MainController {
+public class StoryController {
     private AgileBoardService agileBoardService;
 
-    public MainController(AgileBoardService agileBoardService) {
+    public StoryController(AgileBoardService agileBoardService) {
         this.agileBoardService = agileBoardService;
     }
 
     @GetMapping("/stories")
-    // TODO return with List<StoryDto>
-    public ResponseEntity<StoryMinDto> listAllStories() {
-        StoryMinDto allStories = agileBoardService.findAllStories();
+    public ResponseEntity<List<StoryDto>> listAllStories() {
+        List<StoryDto> allStories = agileBoardService.findAllStories();
         return ResponseEntity.ok(allStories);
     }
 
-    // TODO move to UserController
-    @GetMapping("/users")
-    // TODO return with List<UserDto>
-    public ResponseEntity<UserMinDto> listAllUsers() {
-        UserMinDto allUsers = agileBoardService.findAllUsers();
-        return ResponseEntity.ok(allUsers);
-    }
-
-    @PostMapping("/users")
-    // TODO return with UserDto
-    public ResponseEntity<User> addNewUser(@RequestBody UserDto userDto) {
-        return new ResponseEntity<>(agileBoardService.addNewUser(userDto), HttpStatus.CREATED);
-    }
-
     @PostMapping("/stories")
-    // TODO return with StoryDto
-    public ResponseEntity<Story> addNewStory(@RequestBody StoryDto storyDto) {
+    public ResponseEntity<StoryDto> addNewStory(@RequestBody StoryDto storyDto) {
         return new ResponseEntity<>(agileBoardService.addNewStory(storyDto), HttpStatus.CREATED);
     }
 
@@ -122,14 +99,4 @@ public class MainController {
             return ResponseEntity.badRequest().build();
         }
     }
-
-//    @GetMapping("/board")
-//    public ResponseEntity<Map<StoryStatus, List<StoryDto>>> getBoard() {
-//        return ResponseEntity.ok(
-//                Map.of(
-//                        StoryStatus.T ODO, List.of(new StoryDto(null, null, null, null, null, null, null)),
-//                        StoryStatus.IN_PROGRESS, List.of(new StoryDto(null, null, null, null, null, null, null))
-//                )
-//        );
-//    }
 }

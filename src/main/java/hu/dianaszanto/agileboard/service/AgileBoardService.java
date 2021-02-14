@@ -2,11 +2,9 @@ package hu.dianaszanto.agileboard.service;
 
 import hu.dianaszanto.agileboard.model.Story;
 import hu.dianaszanto.agileboard.model.StoryDto;
-import hu.dianaszanto.agileboard.model.StoryMinDto;
 import hu.dianaszanto.agileboard.model.StoryStatus;
 import hu.dianaszanto.agileboard.model.User;
 import hu.dianaszanto.agileboard.model.UserDto;
-import hu.dianaszanto.agileboard.model.UserMinDto;
 import hu.dianaszanto.agileboard.repository.StoryRepository;
 import hu.dianaszanto.agileboard.repository.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -37,35 +35,37 @@ public class AgileBoardService {
         return isPerfectSquare(5 * n * n + 4) || isPerfectSquare(5 * n * n - 4);
     }
 
-    public StoryMinDto findAllStories() {
-        List<StoryDto> stories = storyRepository.findAll()
+    public List<StoryDto> findAllStories() {
+
+        return storyRepository.findAll()
                 .stream()
                 .map(s -> new StoryDto(s.getTitle(), s.getIssueId(), s.getPoint(), s.getDescription(), s.getCreatedAt(),
                         s.getStatus(), s.getAssignee().getName()))
                 .collect(Collectors.toList());
-
-        return new StoryMinDto(stories);
     }
 
-    public UserMinDto findAllUsers() {
+    public List<UserDto> findAllUsers() {
         List<User> all = userRepository.findAll();
 
-        List<UserDto> collection = all.stream()
+        return all.stream()
                 .map(u -> new UserDto(u.getName(), u.getStories().stream()
                         .map(Story::getTitle).collect(Collectors.toList())))
                 .collect(Collectors.toList());
-
-        return new UserMinDto(collection);
     }
 
-    public Story addNewStory(StoryDto storyDto) {
-        return storyRepository.save(Story.builder().title(storyDto.getTitle()).description(storyDto.getDescription())
+    public StoryDto addNewStory(StoryDto storyDto) {
+        Story toSave = storyRepository.save(Story.builder().title(storyDto.getTitle()).description(storyDto.getDescription())
                 .issueId(storyDto.getIssueId()).point(storyDto.getPoint())
                 .status(storyDto.getStatus()).createdAt(new Timestamp(System.currentTimeMillis())).build());
+
+        return new StoryDto(toSave.getTitle(), toSave.getIssueId(), toSave.getPoint(), toSave.getDescription(),
+                toSave.getCreatedAt(), toSave.getStatus(), toSave.getAssignee().getName());
     }
 
-    public User addNewUser(UserDto userDto) {
-        return userRepository.save(User.builder().name(userDto.getName()).build());
+    public UserDto addNewUser(UserDto userDto) {
+        User toSave = userRepository.save(User.builder().name(userDto.getName()).build());
+
+        return new UserDto(toSave.getName());
     }
 
     public Story addAssignee(Long storyId, Long userId) {
