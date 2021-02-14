@@ -9,7 +9,9 @@ import hu.dianaszanto.agileboard.model.UserDto;
 import hu.dianaszanto.agileboard.model.UserMinDto;
 import hu.dianaszanto.agileboard.repository.StoryRepository;
 import hu.dianaszanto.agileboard.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -26,6 +28,15 @@ public class AgileBoardService {
         this.userRepository = userRepository;
     }
 
+    private static boolean isPerfectSquare(Double x) {
+        int s = (int) Math.sqrt(x);
+        return (s * s == x);
+    }
+
+    private static boolean isFibonacci(Double n) {
+        return isPerfectSquare(5 * n * n + 4) || isPerfectSquare(5 * n * n - 4);
+    }
+
     public StoryMinDto findAllStories() {
         List<StoryDto> stories = storyRepository.findAll()
                 .stream()
@@ -34,7 +45,6 @@ public class AgileBoardService {
                 .collect(Collectors.toList());
 
         return new StoryMinDto(stories);
-
     }
 
     public UserMinDto findAllUsers() {
@@ -72,5 +82,21 @@ public class AgileBoardService {
         Story story = storyRepository.findById(id).orElseThrow(NoSuchElementException::new);
         story.setStatus(status);
         return storyRepository.save(story);
+    }
+
+    public Story updateStoryPoint(Long id, Double point) {
+        Story story = storyRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        if (isFibonacci(point)) {
+            story.setPoint(point);
+            return storyRepository.save(story);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
+        }
+    }
+
+    public StoryDto getStoryDetails(String issueId) {
+        Story story = storyRepository.findByIssueId(issueId).orElseThrow(NoSuchElementException::new);
+        return new StoryDto(story.getTitle(), story.getIssueId(), story.getPoint(), story.getDescription(),
+                story.getCreatedAt(), story.getStatus(), story.getAssignee().getName());
     }
 }

@@ -18,5 +18,4 @@ public class StoryDto {
     private Timestamp createdAt;
     private StoryStatus status;
     private String assignee;
-
 }
