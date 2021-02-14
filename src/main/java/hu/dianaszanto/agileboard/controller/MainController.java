@@ -3,6 +3,7 @@ package hu.dianaszanto.agileboard.controller;
 import hu.dianaszanto.agileboard.model.Story;
 import hu.dianaszanto.agileboard.model.StoryDto;
 import hu.dianaszanto.agileboard.model.StoryMinDto;
+import hu.dianaszanto.agileboard.model.StoryRequest;
 import hu.dianaszanto.agileboard.model.User;
 import hu.dianaszanto.agileboard.model.UserDto;
 import hu.dianaszanto.agileboard.model.UserMinDto;
@@ -55,6 +56,22 @@ public class MainController {
         if (id != null) {
             try {
                 Story story = agileBoardService.addAssignee(id, userRequest.getUserId());
+                StoryDto storyDto = new StoryDto(story.getTitle(), story.getIssueId(), story.getPoint(),
+                        story.getDescription(), story.getCreatedAt(), story.getStatus(), story.getAssignee().getName());
+                return ResponseEntity.ok(storyDto);
+            } catch (NoSuchElementException e) {
+                return ResponseEntity.notFound().build();
+            }
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @RequestMapping(value = "update/{id}", method = RequestMethod.PATCH)
+    public ResponseEntity<StoryDto> updateStatus(@PathVariable Long id, @RequestBody StoryRequest request) {
+        if (id != null) {
+            try {
+                Story story = agileBoardService.updateStatus(id, request.getStatus());
                 StoryDto storyDto = new StoryDto(story.getTitle(), story.getIssueId(), story.getPoint(),
                         story.getDescription(), story.getCreatedAt(), story.getStatus(), story.getAssignee().getName());
                 return ResponseEntity.ok(storyDto);

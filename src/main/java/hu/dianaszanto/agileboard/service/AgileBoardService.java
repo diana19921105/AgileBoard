@@ -3,6 +3,7 @@ package hu.dianaszanto.agileboard.service;
 import hu.dianaszanto.agileboard.model.Story;
 import hu.dianaszanto.agileboard.model.StoryDto;
 import hu.dianaszanto.agileboard.model.StoryMinDto;
+import hu.dianaszanto.agileboard.model.StoryStatus;
 import hu.dianaszanto.agileboard.model.User;
 import hu.dianaszanto.agileboard.model.UserDto;
 import hu.dianaszanto.agileboard.model.UserMinDto;
@@ -65,6 +66,11 @@ public class AgileBoardService {
         user.getStories().add(story);
         storyRepository.save(story);
         return story;
+    }
 
+    public Story updateStatus(Long id, StoryStatus status) {
+        Story story = storyRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        story.setStatus(status);
+        return storyRepository.save(story);
     }
 }
