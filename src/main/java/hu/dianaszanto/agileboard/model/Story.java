@@ -1,11 +1,15 @@
 package hu.dianaszanto.agileboard.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,6 +18,8 @@ import javax.persistence.ManyToOne;
 import java.sql.Timestamp;
 
 @Entity
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Story {
@@ -35,6 +41,10 @@ public class Story {
 
     @Column
     private Timestamp createdAt;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private StoryStatus status;
 
     @ManyToOne
     @JoinColumn(name = "assignee_id", nullable = false)
