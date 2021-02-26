@@ -22,13 +22,18 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column
-    private String name;
+  @Column
+  private String name;
 
-    @OneToMany(mappedBy = "assignee")
-    private List<Story> stories = new ArrayList<>();
+  @OneToMany(mappedBy = "assignee")
+  private List<Story> stories = new ArrayList<>();
+
+  @Override
+  public String toString() {
+    return name;
+  }
 }
