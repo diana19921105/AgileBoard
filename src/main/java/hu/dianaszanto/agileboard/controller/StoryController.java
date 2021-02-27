@@ -1,5 +1,8 @@
 package hu.dianaszanto.agileboard.controller;
 
+import hu.dianaszanto.agileboard.model.Comment;
+import hu.dianaszanto.agileboard.model.CommentRequestDto;
+import hu.dianaszanto.agileboard.model.CommentResponseDto;
 import hu.dianaszanto.agileboard.model.Story;
 import hu.dianaszanto.agileboard.model.StoryDto;
 import hu.dianaszanto.agileboard.model.StoryPointRequest;
@@ -7,6 +10,7 @@ import hu.dianaszanto.agileboard.model.StoryRequest;
 import hu.dianaszanto.agileboard.model.StoryStatus;
 import hu.dianaszanto.agileboard.model.UserRequest;
 import hu.dianaszanto.agileboard.service.AgileBoardService;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RestController
 public class StoryController {
@@ -105,5 +110,26 @@ public class StoryController {
   @GetMapping("/board")
   public ResponseEntity<Map<StoryStatus, List<StoryDto>>> getBoard() {
     return ResponseEntity.ok(agileBoardService.getBoard());
+  }
+
+  @PostMapping("/story/{issueId}")
+  private ResponseEntity<StoryDto> addComment(@PathVariable String issueId,
+                                              @RequestBody CommentRequestDto commentRequestDto) {
+    try {
+      Story story = agileBoardService.addComment(issueId, commentRequestDto);
+      ModelMapper modelMapper = new ModelMapper();
+
+      List<Comment> commentList = story.getCommentList();
+
+      List<CommentResponseDto> comments = commentList.stream()
+          .map(c -> modelMapper.map(c, CommentResponseDto.class))
+          .collect(Collectors.toList());
+
+      StoryDto storyDto = new StoryDto(story.getTitle(), story.getIssueId(), story.getPoint(), story.getDescription(),
+          story.getCreatedAt(), story.getStatus(), story.getAssignee().getName(), comments);
+      return ResponseEntity.ok(storyDto);
+    } catch (NoSuchElementException e) {
+      return ResponseEntity.badRequest().build();
+    }
   }
 }

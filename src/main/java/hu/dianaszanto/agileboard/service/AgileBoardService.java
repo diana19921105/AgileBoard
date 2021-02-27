@@ -1,5 +1,8 @@
 package hu.dianaszanto.agileboard.service;
 
+import hu.dianaszanto.agileboard.model.Comment;
+import hu.dianaszanto.agileboard.model.CommentRequestDto;
+import hu.dianaszanto.agileboard.model.CommentResponseDto;
 import hu.dianaszanto.agileboard.model.Story;
 import hu.dianaszanto.agileboard.model.StoryDto;
 import hu.dianaszanto.agileboard.model.StoryStatus;
@@ -39,19 +42,19 @@ public class AgileBoardService {
 
   public List<StoryDto> findAllStories() {
 
+    ModelMapper modelMapper = new ModelMapper();
+
     return storyRepository.findAll()
         .stream()
-        .map(s -> new StoryDto(s.getTitle(), s.getIssueId(), s.getPoint(), s.getDescription(), s.getCreatedAt(),
-            s.getStatus(), s.getAssignee().getName()))
+        .map(s -> modelMapper.map(s, StoryDto.class))
         .collect(Collectors.toList());
   }
 
   public List<UserDto> findAllUsers() {
-    List<User> all = userRepository.findAll();
+    ModelMapper modelMapper = new ModelMapper();
 
-    return all.stream()
-        .map(u -> new UserDto(u.getName(), u.getStories().stream()
-            .map(Story::getTitle).collect(Collectors.toList())))
+    return userRepository.findAll().stream()
+        .map(u -> modelMapper.map(u, UserDto.class))
         .collect(Collectors.toList());
   }
 
@@ -61,8 +64,9 @@ public class AgileBoardService {
             .issueId(storyDto.getIssueId()).point(storyDto.getPoint())
             .status(storyDto.getStatus()).createdAt(new Timestamp(System.currentTimeMillis())).build());
 
-    return new StoryDto(toSave.getTitle(), toSave.getIssueId(), toSave.getPoint(), toSave.getDescription(),
-        toSave.getCreatedAt(), toSave.getStatus(), toSave.getAssignee().getName());
+    return StoryDto.builder().title(toSave.getTitle()).issueId(toSave.getIssueId()).point(toSave.getPoint())
+        .description(toSave.getDescription()).createdAt(toSave.getCreatedAt()).status(toSave.getStatus())
+        .assignee(toSave.getAssignee().getName()).build();
   }
 
   public UserDto addNewUser(UserDto userDto) {
@@ -77,8 +81,7 @@ public class AgileBoardService {
 
     story.setAssignee(user);
     user.getStories().add(story);
-    storyRepository.save(story);
-    return story;
+    return storyRepository.save(story);
   }
 
   public Story updateStatus(Long id, StoryStatus status) {
@@ -99,8 +102,15 @@ public class AgileBoardService {
 
   public StoryDto getStoryDetails(String issueId) {
     Story story = storyRepository.findByIssueId(issueId).orElseThrow(NoSuchElementException::new);
-    return new StoryDto(story.getTitle(), story.getIssueId(), story.getPoint(), story.getDescription(),
-        story.getCreatedAt(), story.getStatus(), story.getAssignee().getName());
+    ModelMapper modelMapper = new ModelMapper();
+
+    List<CommentResponseDto> commentList = story.getCommentList().stream()
+        .map(c -> modelMapper.map(c, CommentResponseDto.class))
+        .collect(Collectors.toList());
+
+    return StoryDto.builder().title(story.getTitle()).issueId(story.getIssueId()).point(story.getPoint())
+        .description(story.getDescription()).createdAt(story.getCreatedAt()).status(story.getStatus())
+        .assignee(story.getAssignee().getName()).comment(commentList).build();
   }
 
   public Map<StoryStatus, List<StoryDto>> getBoard() {
@@ -111,5 +121,14 @@ public class AgileBoardService {
     return stories.stream()
         .map(a -> modelMapper.map(a, StoryDto.class))
         .collect(Collectors.groupingBy(StoryDto::getStatus));
+  }
+
+  public Story addComment(String issueId, CommentRequestDto commentRequestDto) {
+    Story story = storyRepository.findByIssueId(issueId).orElseThrow(NoSuchElementException::new);
+    User userById = userRepository.findById(commentRequestDto.getUserId()).orElseThrow(NoSuchElementException::new);
+
+    story.getCommentList()
+        .add(new Comment(commentRequestDto.getMessage(), userById, new Timestamp(System.currentTimeMillis()), story));
+    return storyRepository.save(story);
   }
 }
