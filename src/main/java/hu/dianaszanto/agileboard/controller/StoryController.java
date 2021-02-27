@@ -5,6 +5,7 @@ import hu.dianaszanto.agileboard.model.CommentRequestDto;
 import hu.dianaszanto.agileboard.model.CommentResponseDto;
 import hu.dianaszanto.agileboard.model.Story;
 import hu.dianaszanto.agileboard.model.StoryDto;
+import hu.dianaszanto.agileboard.model.StoryMinDto;
 import hu.dianaszanto.agileboard.model.StoryPointRequest;
 import hu.dianaszanto.agileboard.model.StoryRequest;
 import hu.dianaszanto.agileboard.model.StoryStatus;
@@ -108,7 +109,7 @@ public class StoryController {
   }
 
   @GetMapping("/board")
-  public ResponseEntity<Map<StoryStatus, List<StoryDto>>> getBoard() {
+  public ResponseEntity<Map<StoryStatus, List<StoryMinDto>>> getBoard() {
     return ResponseEntity.ok(agileBoardService.getBoard());
   }
 

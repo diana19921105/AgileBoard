@@ -5,6 +5,7 @@ import hu.dianaszanto.agileboard.model.CommentRequestDto;
 import hu.dianaszanto.agileboard.model.CommentResponseDto;
 import hu.dianaszanto.agileboard.model.Story;
 import hu.dianaszanto.agileboard.model.StoryDto;
+import hu.dianaszanto.agileboard.model.StoryMinDto;
 import hu.dianaszanto.agileboard.model.StoryStatus;
 import hu.dianaszanto.agileboard.model.User;
 import hu.dianaszanto.agileboard.model.UserDto;
@@ -113,14 +114,12 @@ public class AgileBoardService {
         .assignee(story.getAssignee().getName()).comment(commentList).build();
   }
 
-  public Map<StoryStatus, List<StoryDto>> getBoard() {
+  public Map<StoryStatus, List<StoryMinDto>> getBoard() {
     List<Story> stories = storyRepository.findAll();
 
-    ModelMapper modelMapper = new ModelMapper();
-
     return stories.stream()
-        .map(a -> modelMapper.map(a, StoryDto.class))
-        .collect(Collectors.groupingBy(StoryDto::getStatus));
+        .map(a -> new StoryMinDto(a.getTitle(), a.getIssueId(), a.getPoint(), a.getStatus(), a.getAssignee().getName()))
+        .collect(Collectors.groupingBy(StoryMinDto::getStatus));
   }
 
   public Story addComment(String issueId, CommentRequestDto commentRequestDto) {
